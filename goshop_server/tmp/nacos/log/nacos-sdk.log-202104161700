@@ -1,0 +1,33 @@
+2021-04-16T17:04:17.990+0800	[31mERROR[0m	[cache.ReadConfigFromFile] error: failed to read config cache file:../tmp/nacos/cache\config\user-web@@dev@@4af0a0c9-9ebb-4685-9461-597283cc0188,err:open ../tmp/nacos/cache\config\user-web@@dev@@4af0a0c9-9ebb-4685-9461-597283cc0188: The system cannot find the file specified. 
+2021-04-16T17:04:18.001+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user-webdev4af0a0c9-9ebb-4685-9461-597283cc0188 tenant:4af0a0c9-9ebb-4685-9461-597283cc0188] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 Long-Pulling-Timeout-No-Hangup:true accessKey: secretKey:] 
+
+2021-04-16T17:04:18.006+0800	[34mINFO[0m	[client.ListenConfig] no change
+2021-04-16T17:04:18.017+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user-webdev4af0a0c9-9ebb-4685-9461-597283cc0188 tenant:4af0a0c9-9ebb-4685-9461-597283cc0188] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 accessKey: secretKey:] 
+
+2021-04-16T17:04:47.523+0800	[34mINFO[0m	[client.ListenConfig] no change
+2021-04-16T17:04:47.535+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user-webdev4af0a0c9-9ebb-4685-9461-597283cc0188 tenant:4af0a0c9-9ebb-4685-9461-597283cc0188] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 accessKey: secretKey:] 
+
+2021-04-16T17:05:17.041+0800	[34mINFO[0m	[client.ListenConfig] no change
+2021-04-16T17:05:17.051+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user-webdev4af0a0c9-9ebb-4685-9461-597283cc0188 tenant:4af0a0c9-9ebb-4685-9461-597283cc0188] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 accessKey: secretKey:] 
+
+2021-04-16T17:05:46.558+0800	[34mINFO[0m	[client.ListenConfig] no change
+2021-04-16T17:05:46.568+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user-webdev4af0a0c9-9ebb-4685-9461-597283cc0188 tenant:4af0a0c9-9ebb-4685-9461-597283cc0188] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 accessKey: secretKey:] 
+
+2021-04-16T17:06:03.856+0800	[31mERROR[0m	[cache.ReadConfigFromFile] error: failed to read config cache file:../tmp/nacos/cache\config\user-web@@dev@@4af0a0c9-9ebb-4685-9461-597283cc0188,err:open ../tmp/nacos/cache\config\user-web@@dev@@4af0a0c9-9ebb-4685-9461-597283cc0188: The system cannot find the file specified. 
+2021-04-16T17:06:03.865+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user-webdev4af0a0c9-9ebb-4685-9461-597283cc0188 tenant:4af0a0c9-9ebb-4685-9461-597283cc0188] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 Long-Pulling-Timeout-No-Hangup:true accessKey: secretKey:] 
+
+2021-04-16T17:06:03.870+0800	[34mINFO[0m	[client.ListenConfig] no change
+2021-04-16T17:06:03.882+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user-webdev4af0a0c9-9ebb-4685-9461-597283cc0188 tenant:4af0a0c9-9ebb-4685-9461-597283cc0188] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 accessKey: secretKey:] 
+
+2021-04-16T17:06:33.390+0800	[34mINFO[0m	[client.ListenConfig] no change
+2021-04-16T17:06:33.400+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user-webdev4af0a0c9-9ebb-4685-9461-597283cc0188 tenant:4af0a0c9-9ebb-4685-9461-597283cc0188] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 accessKey: secretKey:] 
+
+2021-04-16T17:07:02.908+0800	[34mINFO[0m	[client.ListenConfig] no change
+2021-04-16T17:07:02.918+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user-webdev4af0a0c9-9ebb-4685-9461-597283cc0188 tenant:4af0a0c9-9ebb-4685-9461-597283cc0188] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 accessKey: secretKey:] 
+
+2021-04-16T17:07:32.426+0800	[34mINFO[0m	[client.ListenConfig] no change
+2021-04-16T17:07:32.436+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user-webdev4af0a0c9-9ebb-4685-9461-597283cc0188 tenant:4af0a0c9-9ebb-4685-9461-597283cc0188] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 accessKey: secretKey:] 
+
+2021-04-16T17:08:01.944+0800	[34mINFO[0m	[client.ListenConfig] no change
+2021-04-16T17:08:01.954+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user-webdev4af0a0c9-9ebb-4685-9461-597283cc0188 tenant:4af0a0c9-9ebb-4685-9461-597283cc0188] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 accessKey: secretKey:] 
+

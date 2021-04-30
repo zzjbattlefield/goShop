@@ -1,0 +1,19 @@
+name: 'user_web'
+port: 8021 #端口
+user_srv:
+  host: '127.0.0.1' #客户端id
+  port: 50051 #客户端接口
+  name: "user-srv"
+jwt:
+  key: '你的随机字符串' #jwt随机字符串
+sms:
+  template_code: '阿里云template_code'
+  access_key_id: '阿里云access_key_id '
+  access_key_secret: '阿里云access_key_secret'
+redis:
+  host: '192.168.1.150'
+  port: 6379
+  expire: 300 #redis过期时间
+consul:
+  host: "192.168.1.150"
+  port: 8500

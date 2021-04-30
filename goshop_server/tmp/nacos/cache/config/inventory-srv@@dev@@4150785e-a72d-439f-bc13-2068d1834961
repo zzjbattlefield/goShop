@@ -1,0 +1,20 @@
+{
+  "name": "inventory-srv",
+  "host": "192.168.1.153",
+  "tags": ["imooc", "inventory-srv","go-shop"],
+  "mysql": {
+    "host": "192.168.58.130",
+    "port": 3306,
+    "user": "root",
+    "password": "root",
+    "db": "mxshop_inventory_srv"
+  },
+  "consul": {
+    "host": "192.168.58.130",
+    "port": 8500
+  },
+  "redis":{
+    "host":"192.168.58.130",
+    "port":6379
+  }
+}

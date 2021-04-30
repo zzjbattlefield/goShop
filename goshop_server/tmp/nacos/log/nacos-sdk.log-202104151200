@@ -1,0 +1,34 @@
+2021-04-15T12:17:41.093+0800	[31mERROR[0m	api</v1/cs/configs>,method:<GET>, params:<{"dataId":"user-srv.json","group":"dev","tenant":"731272de-643c-442c-bb6f-0e30f2d88605"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+>
+2021-04-15T12:17:41.102+0800	[31mERROR[0m	api</v1/cs/configs>,method:<GET>, params:<{"dataId":"user-srv.json","group":"dev","tenant":"731272de-643c-442c-bb6f-0e30f2d88605"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+>
+2021-04-15T12:17:41.106+0800	[31mERROR[0m	api</v1/cs/configs>,method:<GET>, params:<{"dataId":"user-srv.json","group":"dev","tenant":"731272de-643c-442c-bb6f-0e30f2d88605"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+>
+2021-04-15T12:17:41.107+0800	[34mINFO[0m	get config from server error:[404] config data not exist
+ 
+2021-04-15T12:24:22.124+0800	[31mERROR[0m	api</v1/cs/configs>,method:<GET>, params:<{"dataId":"user-srv.json","group":"dev","tenant":"731272de-643c-442c-bb6f-0e30f2d88605"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+>
+2021-04-15T12:24:22.136+0800	[31mERROR[0m	api</v1/cs/configs>,method:<GET>, params:<{"dataId":"user-srv.json","group":"dev","tenant":"731272de-643c-442c-bb6f-0e30f2d88605"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+>
+2021-04-15T12:24:22.140+0800	[31mERROR[0m	api</v1/cs/configs>,method:<GET>, params:<{"dataId":"user-srv.json","group":"dev","tenant":"731272de-643c-442c-bb6f-0e30f2d88605"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+>
+2021-04-15T12:24:22.140+0800	[34mINFO[0m	get config from server error:[404] config data not exist
+ 
+2021-04-15T12:26:36.959+0800	[31mERROR[0m	api</v1/cs/configs>,method:<GET>, params:<{"dataId":"user-srv.json","group":"dev","tenant":"731272de-643c-442c-bb6f-0e30f2d88605"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+>
+2021-04-15T12:26:36.968+0800	[31mERROR[0m	api</v1/cs/configs>,method:<GET>, params:<{"dataId":"user-srv.json","group":"dev","tenant":"731272de-643c-442c-bb6f-0e30f2d88605"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+>
+2021-04-15T12:26:36.973+0800	[31mERROR[0m	api</v1/cs/configs>,method:<GET>, params:<{"dataId":"user-srv.json","group":"dev","tenant":"731272de-643c-442c-bb6f-0e30f2d88605"}>, call domain error:<[404] config data not exist
+> , result:<config data not exist
+>
+2021-04-15T12:26:36.973+0800	[34mINFO[0m	get config from server error:[404] config data not exist
+ 
+2021-04-15T12:27:14.302+0800	[31mERROR[0m	[cache.ReadConfigFromFile] error: failed to read config cache file:../tmp/nacos/cache\config\user-web@@dev@@731272de-643c-442c-bb6f-0e30f2d88605,err:open ../tmp/nacos/cache\config\user-web@@dev@@731272de-643c-442c-bb6f-0e30f2d88605: The system cannot find the file specified. 
