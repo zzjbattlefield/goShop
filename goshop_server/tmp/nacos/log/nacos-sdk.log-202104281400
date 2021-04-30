@@ -1,9 +1,0 @@
-2021-04-28T14:23:40.798+0800	[31mERROR[0m	[cache.ReadConfigFromFile] error: failed to read config cache file:../tmp/nacos/cache\config\user-web@@dev@@848062dc-6a49-400c-b8fa-a811b51c3e9e,err:open ../tmp/nacos/cache\config\user-web@@dev@@848062dc-6a49-400c-b8fa-a811b51c3e9e: The system cannot find the file specified. 
-2021-04-28T14:23:40.814+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user-webdev848062dc-6a49-400c-b8fa-a811b51c3e9e tenant:848062dc-6a49-400c-b8fa-a811b51c3e9e] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 Long-Pulling-Timeout-No-Hangup:true accessKey: secretKey:] 
-
-2021-04-28T14:23:40.839+0800	[34mINFO[0m	[client.ListenConfig] no change
-2021-04-28T14:23:40.850+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user-webdev848062dc-6a49-400c-b8fa-a811b51c3e9e tenant:848062dc-6a49-400c-b8fa-a811b51c3e9e] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 accessKey: secretKey:] 
-
-2021-04-28T14:24:10.369+0800	[34mINFO[0m	[client.ListenConfig] no change
-2021-04-28T14:24:10.381+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user-webdev848062dc-6a49-400c-b8fa-a811b51c3e9e tenant:848062dc-6a49-400c-b8fa-a811b51c3e9e] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 accessKey: secretKey:] 
-
