@@ -42,11 +42,11 @@ func InitConfig() {
 		// 它们有不同的NamespaceId。当namespace是public时，此处填空字符串。
 		TimeoutMs:           5000,
 		NotLoadCacheAtStart: true,
-		LogDir:              "../tmp/nacos/log",
-		CacheDir:            "../tmp/nacos/cache",
-		RotateTime:          "1h",
-		MaxAge:              3,
-		LogLevel:            "debug",
+		// LogDir:              "../tmp/nacos/log",
+		// CacheDir:            "../tmp/nacos/cache",
+		RotateTime: "1h",
+		MaxAge:     3,
+		LogLevel:   "debug",
 	}
 	config_client, err := clients.CreateConfigClient(map[string]interface{}{
 		"serverConfigs": sc,
