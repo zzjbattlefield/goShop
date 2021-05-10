@@ -1,0 +1,22 @@
+{
+  "name": "order_web",
+  "host":"192.168.1.153",
+  "tags":["goshop","order"],
+  "port": 8023,
+  "order_srv": {
+    "name": "order-srv"
+  },
+  "goods_srv": {
+    "name": "goods-srv"
+  },
+  "inventory_srv":{
+    "name":"inventory-srv"
+  },
+  "jwt": {
+    "key": "8Q$oH@OH12su_r3!iOln45!3g"
+  },
+  "consul": {
+    "host": "192.168.58.130",
+    "port": 8500
+  }
+}

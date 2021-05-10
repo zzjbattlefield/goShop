@@ -3,7 +3,7 @@ package initialize
 import (
 	"encoding/json"
 	"fmt"
-	"goshop_api/goods_web/global"
+	"goshop_api/order_web/global"
 	"os"
 	"strconv"
 
