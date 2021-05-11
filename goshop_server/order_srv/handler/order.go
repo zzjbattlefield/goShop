@@ -66,9 +66,9 @@ func (o *OrderServer) UpdateCartItem(ctx context.Context, req *proto.CartItemReq
 	}
 	return &empty.Empty{}, nil
 }
+
 func (o *OrderServer) DeleteCartItem(ctx context.Context, req *proto.CartItemRequest) (*empty.Empty, error) {
-	var shopCart model.ShoppingCart
-	if res := global.DB.Where("id=?", req.Id).Delete(&shopCart); res.RowsAffected == 0 {
+	if res := global.DB.Where("goods=? AND user=?", req.GoodsId, req.UserId).Delete(&model.ShoppingCart{}); res.RowsAffected == 0 {
 		return nil, status.Errorf(codes.NotFound, "记录不存在")
 	}
 	return &empty.Empty{}, nil
@@ -187,6 +187,7 @@ func (o *OrderServer) OrderList(ctx context.Context, req *proto.OrderFilterReque
 			Address: orderInfo.Address,
 			Name:    orderInfo.SignerName,
 			Mobile:  orderInfo.SingerMobile,
+			AddTime: orderInfo.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
 	orderListResponse.Data = orderInfoResponse
