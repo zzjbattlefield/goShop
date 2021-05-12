@@ -6,10 +6,15 @@ import (
 	"goshop_api/order_web/initialize"
 	"goshop_api/order_web/utils"
 	"goshop_api/order_web/utils/register/consul"
+	myvalidator "goshop_api/order_web/validator"
 	"os"
 	"os/signal"
 	"syscall"
 
+	ut "github.com/go-playground/universal-translator"
+
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 	"github.com/nacos-group/nacos-sdk-go/inner/uuid"
 	"go.uber.org/zap"
 )
@@ -29,6 +34,15 @@ func main() {
 		if err == nil {
 			global.ServeConfig.Port = port
 		}
+	}
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		_ = v.RegisterValidation("mobile", myvalidator.ValidateMobile)
+		_ = v.RegisterTranslation("mobile", global.Trans, func(ut ut.Translator) error {
+			return ut.Add("mobile", "{0} 非法的手机号码!", true) // see universal-translator for details
+		}, func(ut ut.Translator, fe validator.FieldError) string {
+			t, _ := ut.T("mobile", fe.Field())
+			return t
+		})
 	}
 	//服务注册
 	register_client := consul.NewRegistryClient(global.ServeConfig.ConsulInfo.Host, global.ServeConfig.ConsulInfo.Port)
