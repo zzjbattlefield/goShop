@@ -20,6 +20,8 @@ require (
 	github.com/onsi/ginkgo v1.16.1 // indirect
 	github.com/onsi/gomega v1.11.0 // indirect
 	github.com/satori/go.uuid v1.2.0
+	github.com/smartwalle/alipay v1.0.2
+	github.com/smartwalle/alipay/v3 v3.1.6
 	github.com/spf13/viper v1.7.1
 	github.com/sqs/goreturns v0.0.0-20181028201513-538ac6014518
 	go.uber.org/zap v1.16.0

@@ -14,6 +14,7 @@ type ServerConfig struct {
 	InventoryInfo OrderSrvConfig `mapstructure:"inventory_srv" json:"inventory_srv"`
 	JWTInfo       JwtConfig      `mapstructure:"jwt" json:"jwt"`
 	ConsulInfo    ConsulConfig   `mapstructure:"consul" json:"consul"`
+	AliPayInfo    AliPayConfig   `mapstructure:"alipay" json:"alipay"`
 }
 
 type JwtConfig struct {
@@ -33,4 +34,12 @@ type NacosConfig struct {
 	Password  string `mapstructure:"password" json:"password"`
 	DataId    string `mapstructure:"dataid" json:"dataid"`
 	Group     string `mapstructure:"group" json:"group"`
+}
+
+type AliPayConfig struct {
+	AppId        string `mapstructure:"app_id" json:"app_id"`
+	AliPublicKey string `mapstructure:"ali_public_key" json:"ali_public_key"`
+	PrivateKey   string `mapstructure:"private_key" json:"private_key"`
+	NotifyURL    string `mapstructure:"notify_url" json:"notify_url"`
+	ReturnUrl    string `mapstructure:"return_key" json:"return_key"`
 }

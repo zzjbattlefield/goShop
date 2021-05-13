@@ -11,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/smartwalle/alipay/v3"
 	"go.uber.org/zap"
 )
 
@@ -83,9 +84,23 @@ func New(ctx *gin.Context) {
 		api.HandleGrpcErrorToHttp(err, ctx)
 		return
 	}
-	//TODO 返回支付宝支付url
+	//生成支付宝支付url
+	var p = alipay.TradePagePay{}
+	p.NotifyURL = global.ServeConfig.AliPayInfo.NotifyURL
+	p.ReturnURL = global.ServeConfig.AliPayInfo.ReturnUrl
+	p.Subject = rsp.OrderSn
+	p.OutTradeNo = rsp.OrderSn
+	p.TotalAmount = strconv.FormatFloat(float64(rsp.Total), 'f', 2, 64)
+	p.ProductCode = "FAST_INSTANT_TRADE_PAY"
+	url, err := createAliPayUrl(p)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"id": rsp.Id,
+		"id":          rsp.Id,
+		"ali_pay_url": url,
 	})
 }
 
@@ -110,8 +125,44 @@ func Detail(ctx *gin.Context) {
 		api.HandleGrpcErrorToHttp(err, ctx)
 		return
 	}
+	//生成支付宝支付url
+	var p = alipay.TradePagePay{}
+	p.NotifyURL = global.ServeConfig.AliPayInfo.NotifyURL
+	p.ReturnURL = global.ServeConfig.AliPayInfo.ReturnUrl
+	p.Subject = orderInfoRes.OrderInfo.OrderSn
+	p.OutTradeNo = orderInfoRes.OrderInfo.OrderSn
+	p.TotalAmount = strconv.FormatFloat(float64(orderInfoRes.OrderInfo.Total), 'f', 2, 64)
+	p.ProductCode = "FAST_INSTANT_TRADE_PAY"
+	url, err := createAliPayUrl(p)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+	}
 	ctx.JSON(http.StatusOK, gin.H{
 		"orderInfo": orderInfoRes.OrderInfo,
 		"goodsInfo": orderInfoRes.Goods,
+		"url":       url,
 	})
+}
+
+//创建支付宝支付url
+func createAliPayUrl(tradePagePay alipay.TradePagePay) (string, error) {
+	client, err := alipay.New(global.ServeConfig.AliPayInfo.AppId, global.ServeConfig.AliPayInfo.PrivateKey, false)
+	if err != nil {
+		zap.S().Errorw("实例化支付宝url失败")
+		return "", err
+	}
+	err = client.LoadAliPayPublicKey(global.ServeConfig.AliPayInfo.AliPublicKey)
+	if err != nil {
+		zap.S().Errorw("加载支付宝PublicKey失败")
+		return "", err
+	}
+
+	url, err := client.TradePagePay(tradePagePay)
+	if err != nil {
+		zap.S().Errorw("生成支付url失败")
+		return "", err
+	}
+	return url.String(), nil
 }
