@@ -3,6 +3,7 @@ package order
 import (
 	"context"
 	"goshop_api/order_web/api"
+	"goshop_api/order_web/api/pay"
 	"goshop_api/order_web/forms"
 	"goshop_api/order_web/global"
 	"goshop_api/order_web/models"
@@ -148,17 +149,10 @@ func Detail(ctx *gin.Context) {
 
 //创建支付宝支付url
 func createAliPayUrl(tradePagePay alipay.TradePagePay) (string, error) {
-	client, err := alipay.New(global.ServeConfig.AliPayInfo.AppId, global.ServeConfig.AliPayInfo.PrivateKey, false)
+	client, err := pay.InitAliPay()
 	if err != nil {
-		zap.S().Errorw("实例化支付宝url失败")
 		return "", err
 	}
-	err = client.LoadAliPayPublicKey(global.ServeConfig.AliPayInfo.AliPublicKey)
-	if err != nil {
-		zap.S().Errorw("加载支付宝PublicKey失败")
-		return "", err
-	}
-
 	url, err := client.TradePagePay(tradePagePay)
 	if err != nil {
 		zap.S().Errorw("生成支付url失败")

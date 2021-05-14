@@ -2,6 +2,7 @@ package router
 
 import (
 	"goshop_api/order_web/api/order"
+	"goshop_api/order_web/api/pay"
 	"goshop_api/order_web/middlewares"
 
 	"github.com/gin-gonic/gin"
@@ -14,5 +15,8 @@ func InitOrderRouter(Router *gin.RouterGroup) {
 		OrderGroup.POST("", order.New) //新建订单
 		OrderGroup.GET("/:id", order.Detail)
 	}
-
+	PayRouter := Router.Group("pay")
+	{
+		PayRouter.POST("alipay/notify", pay.Notify)
+	}
 }
