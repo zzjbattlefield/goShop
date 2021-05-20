@@ -79,6 +79,9 @@ func (*UseropServer) UpdateAddress(ctx context.Context, req *proto.AddressReques
 	if req.District != "" {
 		addressModel.District = req.District
 	}
+	if req.Province != "" {
+		addressModel.Province = req.Province
+	}
 	if req.SignerMobile != "" {
 		addressModel.SignerMobile = req.SignerMobile
 	}
