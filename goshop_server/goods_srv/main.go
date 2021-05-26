@@ -30,6 +30,7 @@ func main() {
 	initialize.InitLogger()
 	initialize.InitConfig()
 	initialize.InitDB()
+	initialize.InitEs()
 	zap.S().Info(global.ServerConfig)
 	if *port == 0 {
 		//没有指定端口号时自动生成

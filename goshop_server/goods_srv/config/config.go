@@ -14,6 +14,7 @@ type ServerConfig struct {
 	Tags       []string     `mapstructure:"tags" json:"tags"`
 	MysqlInfo  MysqlConfig  `mapstructure:"mysql" json:"mysql"`
 	ConsulInfo ConsulConfig `mapstructure:"consul" json:"consul"`
+	EsInfo     EsConfig     `mapstructure:"es" json:"es"`
 }
 
 type ConsulConfig struct {
@@ -29,4 +30,9 @@ type NacosConfig struct {
 	Password  string `mapstructure:"password"`
 	DataId    string `mapstructure:"dataid"`
 	Group     string `mapstructure:"group"`
+}
+
+type EsConfig struct {
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
 }
