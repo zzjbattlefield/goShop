@@ -1,5 +1,13 @@
 package model
 
+import (
+	"context"
+	"goshop/goods_srv/global"
+	"strconv"
+
+	"gorm.io/gorm"
+)
+
 type Category struct {
 	BaseModel
 	Name             string      `gorm:"type:varchar(20);not null"`
@@ -67,4 +75,28 @@ type Goods struct {
 
 	Images     GormList `gorm:"type:varchar(1000);not null"` //商品图片
 	DescImages GormList `gorm:"type:varchar(1000);not null"` //商品详细图片
+}
+
+func (g *Goods) AfterCreate(tx *gorm.DB) error {
+	esModel := EsGoods{
+		ID:          g.ID,
+		CategoryID:  g.CategoryID,
+		BrandsID:    g.BrandsID,
+		OnSale:      g.OnSale,
+		ShipFree:    g.ShipFree,
+		IsNew:       g.IsNew,
+		IsHot:       g.IsHot,
+		Name:        g.Name,
+		ClickNum:    g.ClickNum,
+		SoldNum:     g.SoldNum,
+		FavNum:      g.FavNum,
+		MarketPrice: g.MarketPrice,
+		GoodsBrief:  g.GoodsBrief,
+		ShopPrice:   g.ShopPrice,
+	}
+	_, err := global.EsClient.Index().Index(EsGoods{}.GetIndexName()).BodyJson(esModel).Id(strconv.Itoa(int(esModel.ID))).Do(context.Background())
+	if err != nil {
+		return err
+	}
+	return nil
 }

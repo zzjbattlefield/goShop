@@ -14,6 +14,7 @@ require (
 	github.com/hashicorp/consul/api v1.3.0
 	github.com/mbobakov/grpc-consul-resolver v1.4.4
 	github.com/nacos-group/nacos-sdk-go v1.0.7
+	github.com/olivere/elastic/v7 v7.0.24
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/viper v1.7.1
 	go.uber.org/zap v1.15.0
