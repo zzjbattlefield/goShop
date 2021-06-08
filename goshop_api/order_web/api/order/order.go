@@ -81,7 +81,7 @@ func New(ctx *gin.Context) {
 		Post:    orderForm.Post,
 	})
 	if err != nil {
-		zap.S().Errorw("新建订单失败")
+		zap.S().Errorf("新建订单失败:%v", err.Error())
 		api.HandleGrpcErrorToHttp(err, ctx)
 		return
 	}
