@@ -11,10 +11,13 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"goshop/inventory_srv/initialize"
 	"goshop/inventory_srv/proto"
 
+	"github.com/apache/rocketmq-client-go/v2"
+	"github.com/apache/rocketmq-client-go/v2/consumer"
 	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -60,6 +63,22 @@ func main() {
 			panic(err)
 		}
 	}()
+
+	//监听库存归还topic
+	c, err := rocketmq.NewPushConsumer(consumer.WithNameServer([]string{"192.168.58.130:9876"}),
+		consumer.WithGroupName("mxshop-inventory"))
+	if err != nil {
+		panic("新建consumer失败")
+	}
+	//订阅消息
+	if err := c.Subscribe("order_reback", consumer.MessageSelector{}, handler.AutoReback); err != nil {
+		fmt.Println("读取消息失败")
+	}
+	_ = c.Start()
+	//不能让主协程退出
+	time.Sleep(time.Hour)
+	c.Shutdown()
+
 	quit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit

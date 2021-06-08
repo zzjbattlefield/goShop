@@ -8,7 +8,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type GormList []string
+type GoodsDetail struct {
+	Goods int32
+	Num   int32
+}
+
+type GoodsDetailList []GoodsDetail
 
 type BaseModel struct {
 	ID        int32     `gorm:"primarykey"`
@@ -18,10 +23,10 @@ type BaseModel struct {
 	IsDeleted bool
 }
 
-func (g GormList) Value() (driver.Value, error) {
+func (g GoodsDetailList) Value() (driver.Value, error) {
 	return json.Marshal(g)
 }
 
-func (g *GormList) Scan(value interface{}) error {
+func (g *GoodsDetailList) Scan(value interface{}) error {
 	return json.Unmarshal(value.([]byte), g)
 }

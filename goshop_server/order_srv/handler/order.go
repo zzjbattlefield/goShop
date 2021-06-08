@@ -2,10 +2,14 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"goshop/order_srv/global"
 	"goshop/order_srv/model"
 	"goshop/order_srv/proto"
 
+	"github.com/apache/rocketmq-client-go/v2"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
+	"github.com/apache/rocketmq-client-go/v2/producer"
 	"github.com/golang/protobuf/ptypes/empty"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -76,20 +80,25 @@ func (o *OrderServer) DeleteCartItem(ctx context.Context, req *proto.CartItemReq
 
 //订单相关的功能
 
-//创建订单
-func (o *OrderServer) CreateOrder(ctx context.Context, req *proto.OrderRequest) (*proto.OrderInfoResponse, error) {
-	/*
-		新建订单TODO:
-			1.先从购物车中拿到选择的商品
-			2.确认商品的金额(跨微服务)
-			3.扣减商品的库存(跨微服务)
-			4.创建订单的基本信息
-			5.从公务车中删除下单的商品
-	*/
+type orderListener struct {
+	Code        codes.Code
+	Detail      string
+	ID          int32
+	OrderAmount float32
+}
+
+//RocketMQ本地事务消息执行逻辑
+func (o *orderListener) ExecuteLocalTransaction(msg *primitive.Message) primitive.LocalTransactionState {
+	var orderInfo model.OrderInfo
+	//通过message的body获取订单相关信息
+	_ = json.Unmarshal(msg.Body, &orderInfo)
 	var shopCart []model.ShoppingCart
 	var goodIds []int32
-	if result := global.DB.Where(&model.ShoppingCart{User: req.UserId, Checked: true}).Find(&shopCart); result.RowsAffected == 0 {
-		return nil, status.Errorf(codes.InvalidArgument, "没有选择结算商品")
+	//检查购物车是否有选择商品
+	if result := global.DB.Where(&model.ShoppingCart{User: orderInfo.User, Checked: true}).Find(&shopCart); result.RowsAffected == 0 {
+		o.Code = codes.InvalidArgument
+		o.Detail = "没有选中结算商品"
+		return primitive.RollbackMessageState
 	}
 	goodsNumMap := make(map[int32]int32)
 	for _, shopCartInfo := range shopCart {
@@ -99,8 +108,9 @@ func (o *OrderServer) CreateOrder(ctx context.Context, req *proto.OrderRequest) 
 	//跨服务调用（商品查询）
 	rsp, err := global.GoodsSrvClient.BatchGetGoods(context.Background(), &proto.BatchGoodsIdInfo{Id: goodIds})
 	if err != nil {
-		zap.S().Errorf("【order】-【CreateOrder】-批量查询商品信息失败:%s", err.Error())
-		return nil, status.Errorf(codes.Internal, "批量查询商品信息失败")
+		o.Code = codes.InvalidArgument
+		o.Detail = "批量查询商品信息失败"
+		return primitive.RollbackMessageState
 	}
 	var orderAmount float32
 	var orderGoods []*model.OrderGoods
@@ -121,43 +131,106 @@ func (o *OrderServer) CreateOrder(ctx context.Context, req *proto.OrderRequest) 
 	}
 	//跨微服务调用（扣减库存）
 	//TODO: 分布式事务
-	if _, err = global.InventorySrvClient.Sell(context.Background(), &proto.SellInfo{GoodsInvInfo: goodsInvInfo}); err != nil {
-		zap.S().Errorf("【order】-【CreateOrder】-批量扣减失败:%s", err.Error())
-		return nil, status.Errorf(codes.ResourceExhausted, "批量扣减失败")
+	if _, err = global.InventorySrvClient.Sell(context.Background(), &proto.SellInfo{GoodsInvInfo: goodsInvInfo, OrderSn: orderInfo.OrderSn}); err != nil {
+		o.Code = codes.ResourceExhausted
+		o.Detail = "批量扣减失败"
+		return primitive.RollbackMessageState
 	}
 	//创建订单的基本信息
 	tx := global.DB.Begin()
+	//订单总金额
+	orderInfo.OrderMount = orderAmount
+	if res := tx.Save(&orderInfo); res.RowsAffected == 0 {
+		o.Code = codes.ResourceExhausted
+		o.Detail = "保存订单失败"
+		return primitive.CommitMessageState
+	}
+	o.OrderAmount = orderAmount
+	o.ID = orderInfo.ID
+	for _, orderGood := range orderGoods {
+		orderGood.Order = orderInfo.ID
+	}
+
+	//批量插入
+	if res := tx.CreateInBatches(&orderGoods, 100); res.RowsAffected == 0 {
+		o.Code = codes.Internal
+		o.Detail = "批量插入失败"
+		return primitive.CommitMessageState
+	}
+
+	//删除下单了的购物车记录
+	if res := tx.Where(&model.ShoppingCart{User: orderInfo.User, Checked: true}).Delete(&model.ShoppingCart{}); res.RowsAffected == 0 {
+		tx.Rollback()
+		o.Code = codes.Internal
+		o.Detail = "删除购物车记录失败"
+		return primitive.CommitMessageState
+	}
+	//提交本地事务
+	tx.Commit()
+	o.Code = codes.OK
+	//本地事务执行成功 取消归还库存事务操作
+	return primitive.RollbackMessageState
+}
+
+//RocketMQ事务消息回查逻辑
+func (o *orderListener) CheckLocalTransaction(msg *primitive.MessageExt) primitive.LocalTransactionState {
+	var orderModel model.OrderInfo
+	_ = json.Unmarshal(msg.Body, &orderModel)
+	res := global.DB.Where(&model.OrderInfo{OrderSn: orderModel.OrderSn}).First(&model.OrderInfo{})
+	if res.RowsAffected == 0 {
+		//没找到订单号数据说明扣减的时候回滚了,不一定代表扣减过库存,要在归还库存的接口保证幂等性(需要commit归还库存接口)
+		return primitive.CommitMessageState
+	}
+	return primitive.RollbackMessageState
+}
+
+//创建订单
+func (o *OrderServer) CreateOrder(ctx context.Context, req *proto.OrderRequest) (*proto.OrderInfoResponse, error) {
+	/*
+		新建订单TODO:
+			1.先从购物车中拿到选择的商品
+			2.确认商品的金额(跨微服务)
+			3.扣减商品的库存(跨微服务)
+			4.创建订单的基本信息
+			5.从公务车中删除下单的商品
+	*/
+	var orderListener orderListener
+	/*
+		使用rocketMq的基于可靠消息的分布式事务:
+		先发送归还库存的half消息,如果本地事务执行失败则commit归还库存的消息,
+		如果本地事务执行成功,则回滚归还库存的消息
+	*/
+	//创建事务生产者
+	p, err := rocketmq.NewTransactionProducer(&orderListener, producer.WithNameServer([]string{"192.168.58.130:9876"}))
+	if err != nil {
+		zap.S().Errorf("生成producer失败:%s", err.Error())
+		return nil, err
+	}
+	if err := p.Start(); err != nil {
+		zap.S().Errorf("producer开启失败:%s", err.Error())
+		return nil, err
+	}
+	//将order有关的信息通过json传给ExecuteLocalTransaction
 	orderModel := model.OrderInfo{
 		OrderSn:      GenerateOrderSn(req.UserId),
-		OrderMount:   orderAmount,
 		Address:      req.Address,
 		SignerName:   req.Name,
 		SingerMobile: req.Mobile,
 		Post:         req.Post,
 		User:         req.UserId,
 	}
-	if res := tx.Save(&orderModel); res.RowsAffected == 0 {
-		tx.Rollback()
-		return nil, status.Errorf(codes.ResourceExhausted, "保存订单失败")
+	jsonString, _ := json.Marshal(orderModel)
+	_, err = p.SendMessageInTransaction(context.Background(), primitive.NewMessage("order_reback", jsonString))
+	if err != nil {
+		zap.S().Errorf("发送事务消息失败:%s", err.Error())
+		return nil, status.Error(codes.Internal, "发送消息失败")
+	}
+	if orderListener.Code != codes.OK {
+		//当扣减失败时才需要commit归还库存的消息
+		return nil, status.Error(orderListener.Code, orderListener.Detail)
 	}
 
-	for _, orderGood := range orderGoods {
-		orderGood.Order = orderModel.ID
-	}
-
-	//批量插入
-	if res := tx.CreateInBatches(&orderGoods, 100); res.RowsAffected == 0 {
-		tx.Rollback()
-		return nil, status.Errorf(codes.ResourceExhausted, "批量插入失败")
-	}
-
-	//删除下单了的购物车记录
-	if res := tx.Where(&model.ShoppingCart{User: req.UserId, Checked: true}).Delete(&model.ShoppingCart{}); res.RowsAffected == 0 {
-		tx.Rollback()
-		return nil, status.Errorf(codes.ResourceExhausted, "删除购物车记录失败")
-	}
-	tx.Commit()
-	return &proto.OrderInfoResponse{Id: orderModel.ID, OrderSn: orderModel.OrderSn, Total: orderModel.OrderMount}, nil
+	return &proto.OrderInfoResponse{Id: orderListener.ID, OrderSn: orderModel.OrderSn, Total: orderListener.OrderAmount}, nil
 }
 
 //获取订单列表

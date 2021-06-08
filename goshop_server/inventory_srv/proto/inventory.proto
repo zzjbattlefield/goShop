@@ -16,4 +16,5 @@ message GoodsInvInfo {
 
 message SellInfo {
     repeated GoodsInvInfo GoodsInvInfo =1;
+    string orderSn =2;
 }
