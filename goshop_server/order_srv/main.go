@@ -15,6 +15,8 @@ import (
 	"goshop/order_srv/initialize"
 	"goshop/order_srv/proto"
 
+	"github.com/apache/rocketmq-client-go/v2"
+	"github.com/apache/rocketmq-client-go/v2/consumer"
 	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -54,6 +56,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	//监听订单topic
+	c, err := rocketmq.NewPushConsumer(consumer.WithNameServer([]string{"192.168.58.130:9876"}),
+		consumer.WithGroupName("mxshop-order"))
+	if err != nil {
+		panic("新建consumer失败")
+	}
+	//订阅消息
+	if err := c.Subscribe("order_timeout", consumer.MessageSelector{}, handler.OrderTimeOut); err != nil {
+		fmt.Println("读取消息失败")
+	}
+	_ = c.Start()
 	go func() {
 		//server会阻塞
 		err = server.Serve(lis)
@@ -64,6 +77,7 @@ func main() {
 	quit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
+	_ = c.Shutdown()
 	if err = register_client.DeRegister(uuid.String()); err != nil {
 		zap.S().Info("注销失败")
 	}

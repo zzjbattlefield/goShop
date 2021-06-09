@@ -3,11 +3,14 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"goshop/order_srv/global"
 	"goshop/order_srv/model"
 	"goshop/order_srv/proto"
+	"time"
 
 	"github.com/apache/rocketmq-client-go/v2"
+	"github.com/apache/rocketmq-client-go/v2/consumer"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/apache/rocketmq-client-go/v2/producer"
 	"github.com/golang/protobuf/ptypes/empty"
@@ -165,6 +168,32 @@ func (o *orderListener) ExecuteLocalTransaction(msg *primitive.Message) primitiv
 		o.Detail = "删除购物车记录失败"
 		return primitive.CommitMessageState
 	}
+	//发送订单延时消息,超过三十分钟归还库存
+	p, err := rocketmq.NewProducer(producer.WithNameServer([]string{"192.168.58.130:9876"}))
+	if err != nil {
+		zap.S().Errorf("生成producer失败:%v\n", err.Error())
+		tx.Rollback()
+		o.Code = codes.Internal
+		return primitive.CommitMessageState
+	}
+	if err = p.Start(); err != nil {
+		zap.S().Errorf("启动producer失败:%v\n", err.Error())
+		tx.Rollback()
+		o.Code = codes.Internal
+		return primitive.CommitMessageState
+	}
+
+	layoutMsg := primitive.NewMessage("order_timeout", msg.Body)
+	layoutMsg.WithDelayTimeLevel(3)
+	_, err = p.SendSync(context.Background(), layoutMsg)
+	if err != nil {
+		zap.S().Errorf("发送失败:%v\n", err)
+		tx.Rollback()
+		o.Code = codes.Internal
+		o.Detail = "发送延迟消息失败"
+		return primitive.CommitMessageState
+	}
+	// defer p.Shutdown()
 	//提交本地事务
 	tx.Commit()
 	o.Code = codes.OK
@@ -311,4 +340,45 @@ func (o *OrderServer) UpdateOrderStatus(ctx context.Context, req *proto.OrderSta
 		return nil, status.Errorf(codes.NotFound, "订单不存在")
 	}
 	return &empty.Empty{}, nil
+}
+
+//订单超时归还（基于rocketMq的延时消息）
+func OrderTimeOut(ctx context.Context, msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
+	for i := range msgs {
+		var orderInfo model.OrderInfo
+		_ = json.Unmarshal(msgs[i].Body, &orderInfo)
+		fmt.Printf("获取订单超时时间：%v\n", time.Now())
+		//查询订单支付状态，如果没有支付，归还库存
+		var orderModel model.OrderInfo
+		if res := global.DB.Where(&model.OrderInfo{OrderSn: orderInfo.OrderSn}).First(&orderModel); res.RowsAffected == 0 {
+			return consumer.ConsumeSuccess, nil
+		}
+		if orderModel.Status != "TRADE_SUCCESS" {
+			//修改订单状态为已关闭
+			tx := global.DB.Begin()
+			tx.Model(&model.OrderInfo{}).Where(&model.OrderInfo{OrderSn: orderInfo.OrderSn}).Update("status", "TRADE_CLOSE")
+			//归还库存（直接往rocketMq发送一个普通的order_reback消息）
+			p, err := rocketmq.NewProducer(producer.WithNameServer([]string{"192.168.58.130:9876"}))
+			if err != nil {
+				tx.Rollback()
+				zap.S().Errorf("生成producer失败:%v\n", err.Error())
+				return consumer.ConsumeRetryLater, nil
+			}
+			if err = p.Start(); err != nil {
+				tx.Rollback()
+				zap.S().Errorf("启动producer失败:%v\n", err.Error())
+				return consumer.ConsumeRetryLater, nil
+			}
+			_, err = p.SendSync(context.Background(), primitive.NewMessage("order_reback", msgs[i].Body))
+			if err != nil {
+				tx.Rollback()
+				zap.S().Errorf("发送失败:%v\n", err.Error())
+				return consumer.ConsumeRetryLater, nil
+			}
+			// defer p.Shutdown()
+			tx.Commit()
+		}
+
+	}
+	return consumer.ConsumeSuccess, nil
 }

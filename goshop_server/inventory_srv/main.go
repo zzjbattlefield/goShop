@@ -11,7 +11,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"goshop/inventory_srv/initialize"
 	"goshop/inventory_srv/proto"
@@ -75,13 +74,10 @@ func main() {
 		fmt.Println("读取消息失败")
 	}
 	_ = c.Start()
-	//不能让主协程退出
-	time.Sleep(time.Hour)
-	c.Shutdown()
-
 	quit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
+	c.Shutdown()
 	if err = register_client.DeRegister(uuid.String()); err != nil {
 		zap.S().Info("注销失败")
 	}
