@@ -5,6 +5,9 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/apache/rocketmq-client-go/v2"
+	"github.com/apache/rocketmq-client-go/v2/producer"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -32,4 +35,18 @@ func GenerateOrderSn(userId int32) string {
 	now := time.Now()
 	orderSn := fmt.Sprintf("%d%d%d%d%d%d%d%d", now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Nanosecond(), userId, rand.Intn(100)+10)
 	return orderSn
+}
+
+//生成rocketMq生产者
+func NewProducer() (rocketmq.Producer, error) {
+	p, err := rocketmq.NewProducer(producer.WithNameServer([]string{"192.168.58.130:9876"}))
+	if err != nil {
+		zap.S().Errorf("生成producer失败:%v\n", err.Error())
+		return nil, err
+	}
+	if err = p.Start(); err != nil {
+		zap.S().Errorf("启动producer失败:%v\n", err.Error())
+		return nil, err
+	}
+	return p, err
 }

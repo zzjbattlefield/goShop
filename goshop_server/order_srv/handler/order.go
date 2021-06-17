@@ -169,20 +169,12 @@ func (o *orderListener) ExecuteLocalTransaction(msg *primitive.Message) primitiv
 		return primitive.CommitMessageState
 	}
 	//发送订单延时消息,超过三十分钟归还库存
-	p, err := rocketmq.NewProducer(producer.WithNameServer([]string{"192.168.58.130:9876"}))
+	p, err := NewProducer()
 	if err != nil {
-		zap.S().Errorf("生成producer失败:%v\n", err.Error())
 		tx.Rollback()
 		o.Code = codes.Internal
 		return primitive.CommitMessageState
 	}
-	if err = p.Start(); err != nil {
-		zap.S().Errorf("启动producer失败:%v\n", err.Error())
-		tx.Rollback()
-		o.Code = codes.Internal
-		return primitive.CommitMessageState
-	}
-
 	layoutMsg := primitive.NewMessage("order_timeout", msg.Body)
 	layoutMsg.WithDelayTimeLevel(3)
 	_, err = p.SendSync(context.Background(), layoutMsg)
@@ -358,15 +350,9 @@ func OrderTimeOut(ctx context.Context, msgs ...*primitive.MessageExt) (consumer.
 			tx := global.DB.Begin()
 			tx.Model(&model.OrderInfo{}).Where(&model.OrderInfo{OrderSn: orderInfo.OrderSn}).Update("status", "TRADE_CLOSE")
 			//归还库存（直接往rocketMq发送一个普通的order_reback消息）
-			p, err := rocketmq.NewProducer(producer.WithNameServer([]string{"192.168.58.130:9876"}))
+			p, err := NewProducer()
 			if err != nil {
 				tx.Rollback()
-				zap.S().Errorf("生成producer失败:%v\n", err.Error())
-				return consumer.ConsumeRetryLater, nil
-			}
-			if err = p.Start(); err != nil {
-				tx.Rollback()
-				zap.S().Errorf("启动producer失败:%v\n", err.Error())
 				return consumer.ConsumeRetryLater, nil
 			}
 			_, err = p.SendSync(context.Background(), primitive.NewMessage("order_reback", msgs[i].Body))
@@ -375,10 +361,8 @@ func OrderTimeOut(ctx context.Context, msgs ...*primitive.MessageExt) (consumer.
 				zap.S().Errorf("发送失败:%v\n", err.Error())
 				return consumer.ConsumeRetryLater, nil
 			}
-			// defer p.Shutdown()
 			tx.Commit()
 		}
-
 	}
 	return consumer.ConsumeSuccess, nil
 }

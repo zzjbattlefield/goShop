@@ -19,6 +19,8 @@ type ServerConfig struct {
 	GoodsSrvInfo GoodsSrvConfig `mapstructure:"goods_srv" json:"goods_srv"`
 	//库存微服务
 	InventorySrvInfo GoodsSrvConfig `mapstructure:"inventory_srv" json:"inventory_srv"`
+	//rocketMq相关配置
+	RocketMqSrvInfo RocketMq `mapstructure:"rocketMq_srv" json:"rocketMq_srv"`
 }
 
 type GoodsSrvConfig struct {
@@ -41,6 +43,11 @@ type NacosConfig struct {
 }
 
 type Redis struct {
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
+}
+
+type RocketMq struct {
 	Host string `mapstructure:"host"`
 	Port int    `mapstructure:"port"`
 }
