@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"goshop_api/goods_web/global"
 	proto "goshop_api/goods_web/proto"
+	"goshop_api/goods_web/utils/otgrpc"
 
 	"github.com/hashicorp/consul/api"
+	"github.com/opentracing/opentracing-go"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
@@ -36,7 +38,11 @@ func InitSrvConn() {
 	}
 
 	//拨号连接用户grpc服务器
-	connect, err := grpc.Dial(fmt.Sprintf("%s:%d", goodsSrvHost, goodsSrvPort), grpc.WithInsecure())
+	connect, err := grpc.Dial(
+		fmt.Sprintf("%s:%d", goodsSrvHost, goodsSrvPort),
+		grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(opentracing.GlobalTracer())),
+	)
 	if err != nil {
 		zap.S().Errorf("[GetUserList] 连接 [用户服务失败]", "msg", err.Error())
 	}

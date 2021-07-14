@@ -8,7 +8,7 @@ import (
 )
 
 func InitGoodsRouter(Router *gin.RouterGroup) {
-	GoodsGroup := Router.Group("goods")
+	GoodsGroup := Router.Group("goods").Use(middlewares.Trance())
 	{
 		GoodsGroup.GET("", goods.List)
 		GoodsGroup.POST("", middlewares.JWTAuth(), middlewares.IsAdminAuth(), goods.New)

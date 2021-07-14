@@ -98,7 +98,8 @@ func List(ctx *gin.Context) {
 	brandIdInt, _ := strconv.Atoi(brandId)
 	goodsRequest.Brand = int32(brandIdInt)
 
-	r, err := global.GoodsClinet.GoodsList(context.Background(), &goodsRequest)
+	context := context.WithValue(context.Background(), "ginContext", ctx)
+	r, err := global.GoodsClinet.GoodsList(context, &goodsRequest)
 	if err != nil {
 		zap.S().Errorw("[list]查询[商品列表失败]")
 		HandleGrpcErrorToHttp(err, ctx)

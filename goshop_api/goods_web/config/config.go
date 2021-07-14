@@ -7,13 +7,19 @@ type GoodsSrvConfig struct {
 }
 
 type ServerConfig struct {
-	Name         string         `mapstructure:"name" json:"name"`
-	Port         int            `mapstructure:"port" json:"port"`
-	Host         string         `mapstructure:"host" json:"host"`
-	Tags         []string       `mapstructure:"tags" json:"tags"`
-	GoodsSrvInfo GoodsSrvConfig `mapstructure:"goods_srv" json:"goods_srv"`
-	JWTInfo      JwtConfig      `mapstructure:"jwt" json:"jwt"`
-	ConsulInfo   ConsulConfig   `mapstructure:"consul" json:"consul"`
+	Name         string         `mapstructure:"name" json:"name,omitempty"`
+	Port         int            `mapstructure:"port" json:"port,omitempty"`
+	Host         string         `mapstructure:"host" json:"host,omitempty"`
+	Tags         []string       `mapstructure:"tags" json:"tags,omitempty"`
+	GoodsSrvInfo GoodsSrvConfig `mapstructure:"goods_srv" json:"goods_srv,omitempty"`
+	JWTInfo      JwtConfig      `mapstructure:"jwt" json:"jwt,omitempty"`
+	ConsulInfo   ConsulConfig   `mapstructure:"consul" json:"consul,omitempty"`
+	JaegerInfo   JaegerConfig   `mapstructure:"jaeger" json:"jaeger,omitempty"`
+}
+
+type JaegerConfig struct {
+	Host string `mapstructure:"host" json:"host"`
+	Port int    `mapstructure:"port" json:"port"`
 }
 
 type JwtConfig struct {
