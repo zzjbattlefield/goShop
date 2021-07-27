@@ -7,13 +7,17 @@ import (
 )
 
 func Cors() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		method := ctx.Request.Method
-		ctx.Header("Access-Control-Allow-Origin", "*")
-		ctx.Header("Access-Control-Allow-Methos", "POST,GET,PUT,DELETE,OPTIONS,PATCH")
-		ctx.Header("Access-Control-Expose-Headers", "Content-Type,x-token")
+	return func(c *gin.Context) {
+		method := c.Request.Method
+
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Headers", "Content-Type,AccessToken,X-CSRF-Token, Authorization, Token, x-token")
+		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PATCH, PUT")
+		c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Content-Type")
+		c.Header("Access-Control-Allow-Credentials", "true")
+
 		if method == "OPTIONS" {
-			ctx.AbortWithStatus(http.StatusNoContent)
+			c.AbortWithStatus(http.StatusNoContent)
 		}
 	}
 }
